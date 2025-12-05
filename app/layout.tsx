@@ -8,6 +8,7 @@ import "./globals.css"
 const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
+//Title
 export const metadata: Metadata = {
   title: "Sudoku Recursion Visualizer",
   description: "Educational tool demonstrating backtracking algorithm with recursion tree visualization",
