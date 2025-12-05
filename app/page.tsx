@@ -32,6 +32,7 @@ export default function SudokuSolver() {
   const [timer, setTimer] = useState(0)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
   const shouldStopRef = useRef(false)
+  const pausedRef = useRef(false)
   const [selectedCell, setSelectedCell] = useState<[number, number] | null>(null)
 
   useEffect(() => {
@@ -53,6 +54,10 @@ export default function SudokuSolver() {
       if (timerRef.current) clearInterval(timerRef.current)
     }
   }, [solving, paused])
+
+  useEffect(() => {
+    pausedRef.current = paused
+  }, [paused])
 
   const addToHistory = (newBoard: number[][]) => {
     const newHistory = history.slice(0, historyIndex + 1)
@@ -107,7 +112,7 @@ export default function SudokuSolver() {
       delay,
       setRecursionSteps,
       setStats,
-      () => paused,
+      () => pausedRef.current,
       () => shouldStopRef.current,
     )
 
@@ -134,9 +139,10 @@ export default function SudokuSolver() {
 
   const handleReset = () => {
     shouldStopRef.current = true
-    setBoard(JSON.parse(JSON.stringify(initialBoard)))
     setSolving(false)
     setPaused(false)
+
+    if (timerRef.current) clearInterval(timerRef.current)
     setTimer(0)
     setRecursionSteps([])
     setStats({
@@ -146,17 +152,26 @@ export default function SudokuSolver() {
       timeTaken: 0,
       maxDepth: 0,
     })
-    setHistory([JSON.parse(JSON.stringify(initialBoard))])
+
+    const resetBoard = JSON.parse(JSON.stringify(initialBoard))
+    setBoard(resetBoard)
+    setHistory([resetBoard])
     setHistoryIndex(0)
+
+    setTimeout(() => {
+      shouldStopRef.current = false
+    }, 100)
   }
 
   const handleNewPuzzle = (difficulty: "easy" | "medium" | "hard") => {
     shouldStopRef.current = true
+    setSolving(false)
+    setPaused(false)
+    if (timerRef.current) clearInterval(timerRef.current)
+
     const newBoard = generatePuzzle(difficulty)
     setBoard(newBoard)
     setInitialBoard(JSON.parse(JSON.stringify(newBoard)))
-    setSolving(false)
-    setPaused(false)
     setTimer(0)
     setRecursionSteps([])
     setStats({

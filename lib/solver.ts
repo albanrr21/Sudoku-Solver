@@ -41,6 +41,10 @@ export async function solveSudoku(
     await new Promise((resolve) => setTimeout(resolve, 100))
   }
 
+  if (shouldStop()) {
+    return false
+  }
+
   setStats((prev: any) => ({
     ...prev,
     recursiveCalls: prev.recursiveCalls + 1,
@@ -56,6 +60,10 @@ export async function solveSudoku(
         }))
 
         for (let num = 1; num <= 9; num++) {
+          if (shouldStop()) {
+            return false
+          }
+
           if (isValid(board, row, col, num)) {
             board[row][col] = num
             setBoard([...board])
@@ -68,6 +76,10 @@ export async function solveSudoku(
             ) {
               setRecursionSteps((prev) => [...prev.slice(0, -1), { row, col, value: num, depth, success: true }])
               return true
+            }
+
+            if (shouldStop()) {
+              return false
             }
 
             board[row][col] = 0
